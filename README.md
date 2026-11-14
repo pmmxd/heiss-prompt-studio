@@ -1,318 +1,379 @@
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./public/heiss-lockup-white.svg" />
-    <img src="./public/heiss-lockup-black.svg" alt="HEISS UI" width="260" />
-  </picture>
-</p>
+# HEISS Prompt Studio · HEISS 提示词工坊
 
-<h3 align="center">ComfyUI, without the graph.</h3>
+一个以中文提示词和本地参考素材为中心的 HEISS UI 衍生版。
 
-<p align="center">
-  A local front end for ComfyUI.<br />
-  28 model families work out of the box, and your own ComfyUI workflows come along. Write a prompt and watch it render.
-</p>
+> 中文在前，English follows.
+>
+> 本项目基于 [tristmeister/HEISS-UI](https://github.com/tristmeister/HEISS-UI) v0.18.1，不是上游官方项目。HEISS UI 的核心产品、交互、模型支持、服务端能力和视觉设计来自 Leander de Buhr、Jasper 及上游贡献者。本仓库保留原 MIT 许可证、版权声明和上游链接，并明确标注为衍生版本。
 
-<p align="center">
-  <a href="https://github.com/tristmeister/HEISS-UI/releases/latest"><img src="https://img.shields.io/github/v/release/tristmeister/HEISS-UI?style=for-the-badge&label=download&labelColor=1a1a1a&color=ff7a3d" alt="Download the latest release" /></a>
-  <a href="https://heiss-ui.vercel.app/"><img src="https://img.shields.io/badge/website-heiss--ui-ff7a3d?style=for-the-badge&labelColor=1a1a1a" alt="Website" /></a>
-  <a href="https://discord.gg/Hf7ysvDeGa"><img src="https://img.shields.io/badge/discord-join-5865F2?style=for-the-badge&logo=discord&logoColor=white&labelColor=1a1a1a" alt="Join the Discord" /></a>
-  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-444?style=for-the-badge&labelColor=1a1a1a" alt="MIT license" /></a>
-</p>
+## 为什么做这个版本
 
-<p align="center">
-  <b><a href="#quick-start">Quick start</a> &nbsp;·&nbsp; <a href="#supported-models">Models</a> &nbsp;·&nbsp; <a href="#inpainting">Inpainting</a> &nbsp;·&nbsp; <a href="#bring-your-own-workflow">Workflows</a> &nbsp;·&nbsp; <a href="#troubleshooting">Help</a> &nbsp;·&nbsp; <a href="#faq">FAQ</a></b>
-</p>
+HEISS UI 本身已经把 ComfyUI 的日常生成流程整理得很简洁，但在中文用户的高频使用场景里仍有几个断点：
 
-<p align="center">
-  <img src="./docs/screenshots/hero.jpg" alt="HEISS UI: a masonry gallery of generated photographs, two still resolving as pixel mosaics, with the prompt composer floating at the bottom" width="1100" />
-</p>
+1. 界面、状态、错误和工具提示主要是英文。
+2. 参考图需要反复从文件夹选择，缺少统一的本地分类浏览和多选入口。
+3. 提示词工具和参考图库分散在不同网站、文件目录和聊天记录里。
+4. 想套用一组“提示词 + 参考图”时，需要多次复制、拖放和切换页面。
+5. 在线提示词来源接口经常变化，如果没有清晰的缓存层，浏览体验和本地数据都会变乱。
 
-<p align="center">
-  <sub>Free and open source under MIT. Built on <a href="https://github.com/jasperdevs/J-AI-Studio">J-AI Studio</a> by Jasper.</sub>
-</p>
+HEISS Prompt Studio 的目标是把这些动作收进同一个工作台：
 
----
+**找提示词 → 看参考图 → 跨分类多选 → 一键套用 → 直接生成。**
 
-HEISS UI sits on top of the ComfyUI you already run. You get a prompt box, a gallery and the settings that matter for the model you picked. ComfyUI still runs every job and keeps your nodes, models and outputs.
+## 本版重要改动
 
-The node graph is for building workflows. HEISS UI is for the everyday loop of prompt, wait, look, tweak, and your workflows come along.
+### 1. 中文界面层
 
-## Features
+- 新增 `public/heiss-zh-cn.js`。
+- 覆盖主界面、设置、工作流、隐藏空间、状态提示和常用工具提示。
+- 页面默认语言改为 `zh-CN`。
+- 保留上游英文原文作为未翻译内容的回退。
 
-- **28 model families, ready to go.** From SD 1.5 and SDXL to Flux.2, Qwen-Image, Krea 2 and Wan 2.2, each with its makers' recommended settings. [The full list ↓](#supported-models)
-- **Missing parts, one click away.** Pick a model and see what it still needs, with a Download button for each part and **Get all** for the lot.
-- **Native 2K.** Pick 2K and the model draws the picture at 2048 itself, in one run, with no upscale in between. Or set any size of your own, in pixels or megapixels, and save it for every device. [Sizes ↓](#native-2k-and-sizes)
-- **Smart upscale.** Any picture goes to 2K or 4K with SeedVR2 in one click, with a countdown. [How ↓](#smart-upscale)
-- **Bring your own workflow.** Import a ComfyUI workflow and it becomes a clean set of controls, with your graph running underneath. [How it works ↓](#bring-your-own-workflow)
-- **Inpainting (beta).** Paint over part of a picture, say what it becomes, and only that part changes. No extra nodes, and it works with 18 image families.
-- **Auto-grouping.** Ten takes of one idea become one tile, so a gallery of hundreds stays easy to scan.
-- **On your phone and every device.** A phone layout made for one thumb, and the full studio on any laptop or tablet on your network. Your PC renders, and every device shares the same models and gallery. [Set it up ↓](#on-your-phone)
-- **Hidden.** A locked place for images you keep to yourself, opened with Touch ID, Windows Hello or a password. Generate into it, or hide anything later.
-- **Civitai-ready images (beta).** New PNGs carry their prompt and settings in a form Civitai fills in for you on upload. Turn it on in Settings › Library.
-- **Zen mode.** Just the prompt and the picture, fullscreen.
+### 2. 本地参考图库
 
-LoRA stacks, live previews, video previews, recent prompts and gallery search are on the [website](https://heiss-ui.vercel.app/#features).
+- 新增 `public/heiss-reference-gallery.js`。
+- 新增 `server/reference-gallery.js`。
+- 支持人像、服装、二次元服装、姿势与深度、线稿姿势、角色六类来源。
+- 支持搜索、加载更多和缩略图。
+- 支持跨分类 tab 多选。
+- 根据当前模型声明的参考图槽位限制数量，避免多张图错误覆盖到一个槽位。
+- 图片读取采用“本地优先，远程兜底”，不批量复制用户素材。
 
-<p align="center">
-  <a href="./docs/screenshots/realtime-generation.mp4"><img src="./docs/screenshots/realtime-generation.gif" alt="Two new images resolving live in the gallery, from pixel-mosaic step previews to the finished photograph" width="100%" /></a>
-</p>
+### 3. 本地及在线提示词库
 
-## Quick start
+- 新增 `public/heiss-prompt-library.js`。
+- 新增 `server/prompt-library.js`。
+- 新增 `server/prompt-library-remote.js`。
+- 支持本地案例、模板和在线来源。
+- 本地案例支持分类、风格、场景、关键词筛选。
+- 支持完整提示词查看、复制、套用、参考图套用和一键生成。
+- 在线来源支持 YouMind、Image2Studio、PromptsRef。
+- 在线数据按需缓存，不一次性下载全站内容。
+- 图片路径、案例 ID 和在线来源均采用白名单校验。
 
-**1. Download** the zip for your system from the [latest release](https://github.com/tristmeister/HEISS-UI/releases/latest):
+### 4. 快速启停
 
-| Windows | macOS (Apple Silicon) | Linux |
-| --- | --- | --- |
-| [`heiss-ui-*-windows-x64.zip`](https://github.com/tristmeister/HEISS-UI/releases/latest) | [`heiss-ui-*-macos-arm64.zip`](https://github.com/tristmeister/HEISS-UI/releases/latest) | [`heiss-ui-*-linux-x64.zip`](https://github.com/tristmeister/HEISS-UI/releases/latest) |
+- 新增 `快速启动 HEISS Prompt Studio.bat`。
+- 新增 `快速停止 HEISS Prompt Studio.bat`。
+- 新增 `scripts/quick-start.ps1` 和 `scripts/quick-stop.ps1`。
+- 启动器使用系统 Node.js，不绑定任何本机绝对路径。
 
-The plain `heiss-ui-*.zip` (no system in its name) is for in-app updates; you can skip it.
+### 5. 隐私和发布边界
 
-**2. Unpack it and double-click Start HEISS UI** (`.bat` on Windows, `.command` on macOS, `.desktop` on Linux), or run `npm start` in the folder. Node.js and the packages are inside, so there's nothing else to install, and the studio opens in the browser.
+本仓库不包含：
 
-**3. Have ComfyUI running.** ComfyUI on this computer connects automatically, at `http://127.0.0.1:8188` or ComfyUI Desktop's port 8000. On another machine or port, set its address in **Settings › Connection**.
+- `.env` 或本机代理配置。
+- `data/`、提示词历史、图库状态或加密数据。
+- `prompt-library-cache/` 和在线图片缓存。
+- ComfyUI 输出、用户生成图片、日志和截图。
+- 模型、LoRA、检查点或工作流输出。
+- 用户名、邮箱、Token、API Key、Cookie 或密码。
 
-Launcher won't open, or the window closes? [Troubleshooting › Starting HEISS UI](./docs/guides/TROUBLESHOOTING.md#starting-heiss-ui) covers macOS, Windows and Linux. To hand the whole setup to a coding agent (Claude Code, Codex), the [install section](https://heiss-ui.vercel.app/#install) has a prompt to paste.
+## 重要说明
 
-<details>
-<summary><b>No ComfyUI yet?</b></summary>
+当前增强层采用“前端增强脚本 + 后端模块 + 两个接入点”的方式：
 
-Get [ComfyUI Desktop](https://www.comfy.org/download), leave it running, and HEISS UI connects on its own.
+- `index.html` 加载 3 个增强脚本。
+- `server/index.js` 导入并注册 3 组后端路由。
 
-</details>
+这不是两个独立插件，而是三层增强：
 
-<details>
-<summary><b>Install from source</b></summary>
+1. 中文界面
+2. 参考图库
+3. 提示词库
 
-To follow `main` or change the code. This needs **Node.js 20.9+** (22 LTS or newer recommended); the downloads bring their own.
+这种方式能快速跟随上游 v0.18.1 发布包工作，但上游升级后可能需要重新核对 DOM 选择器和路由接入。长期维护方向是把增强逐步迁移为正式 React 组件。
+
+## 快速开始
+
+要求：
+
+- Node.js 20.9 或更高版本
+- 正在运行的 ComfyUI，默认地址为 `http://127.0.0.1:8188`
+
+安装与开发：
 
 ```bash
-git clone https://github.com/tristmeister/HEISS-UI.git heiss-ui
-cd heiss-ui
-npm install
-npm start
-```
-
-`npm start` opens **http://localhost:8787** in the browser (or the next free port if that one is taken). Models, samplers and VAEs show up once ComfyUI is connected.
-
-ComfyUI on another machine or port? Set its address in **Settings › Connection**, or copy `.env.example` to `.env` and set `COMFY_URL`.
-
-</details>
-
-<details>
-<summary><b>Run in Docker</b></summary>
-
-`docker compose up --build` starts the studio in a container next to your running ComfyUI, with its data on a volume and the gallery served from ComfyUI's output folder. Point `COMFY_OUTPUT_HOST` at that folder before starting; the why and a plain `docker run` are in [DOCKER.md](./docs/guides/DOCKER.md).
-
-</details>
-
-## Supported models
-
-30 families run out of the box with their makers' recommended settings, and a renamed file is still recognized.
-
-**Image (23):** FLUX.3 Klein (with its prompt upsampler), MOSS-Image (with a guided setup), Krea 2, Anima, Z-Image, Flux.2 (Dev, Klein 4B, Klein 9B), SDXL (NoobAI, Illustrious, Pony and more), Pony V7, Chroma, Qwen-Image (and 2.1), Ideogram 4, MageFlow, ERNIE-Image, Lumina Image 2.0, Sana, HiDream I1, SD 3.5, Flux.1, SD 2.x and SD 1.5.
-
-**Video (7, beta):** MiniMax H3, HunyuanVideo 1.5, Wan 2.2 (5B and 14B) and Wan 2.1, with text and image to video where the model has both.
-
-Missing parts get a Download button. An unrecognized file can be given a type under **Settings › Models › Model types**. GGUF files work; Nunchaku, NF4 and other formats that need their own loader nodes don't ([formats](./docs/guides/MODELS.md#formats)). Anything else runs as [your own workflow](#bring-your-own-workflow).
-
-## Bring your own workflow
-
-The built-in models cover the everyday loop. For anything custom, bring your graph.
-
-1. **Export.** Build and test the graph in ComfyUI, then export it (**API format** works best; the regular workflow file works too).
-2. **Drop.** Open the **Workflow Gallery** from the dock and drop the file on it, or paste the JSON.
-3. **Check the connections.** The usual inputs are connected for you. Change any of them under **Change connections**, then import.
-
-The workflow shows up in the model menu under **Your workflows** once the nodes it needs are installed.
-
-
-The usual inputs (prompt, size, seed, steps and the like) are connected for you, and only those change; everything else runs as exported. The review marks anything it guessed, warns about nodes that run code, touch files or go online, and tells you where a missing model file belongs, with a Download button when it knows the file. To ship a workflow with its connections fixed, see the [workflow guide](./workflows/README.md).
-
-## Auto-downloads
-
-Getting a new model running in ComfyUI usually means hunting for the right text encoder, the right VAE and a custom node pack or two. Here each part gets a button, and **Get all** fetches the lot. Nothing downloads until you press the button. [What's covered](./docs/guides/DOWNLOADS.md).
-
-
-## Reference and start images
-
-- **Reference images for edit models.** Flux.2 (Klein 4B, Klein 9B and Dev) and Qwen-Image 2.1 edit from reference images.
-- **Start images for everything else.** Every other built-in image model (Krea 2, SDXL, Flux, Z-Image and the rest) offers **Add start image**. The image then sits in the sidebar's Basics with **Change from the reference** right under it, for how far the result may move from it.
-- **Paint on either one.** Hover a reference or start image and press the brush to [inpaint](#inpainting) just part of it.
-
-
-<details>
-<summary><b>Reference slots, the library and your workflows</b></summary>
-
-- **Slots as you need them.** The composer opens a new reference slot each time you fill one. Several references stack into one chip that fans out on hover.
-- **Edit or Reference.** On Flux.2 and Qwen-Image 2.1 the first reference is **Edit** (the result keeps its size and changes that picture) or **Reference** (it only guides, and the size and shape stay yours, 2K included).
-- **A reference library in the composer.** Pick from uploads or your own generations, drop files in, or send any image from the viewer. An upscaled image is used upscaled.
-- **Your workflows too.** Imported workflows can take reference images and let one set the output size and aspect.
-
-</details>
-
-## Inpainting
-
-Change one part of a picture and keep the rest. Hover a reference or start image in the prompt bar and press the brush, paint over what should change, then write what it becomes.
-
-<p align="center">
-  <a href="./docs/screenshots/inpainting.mp4"><img src="./docs/screenshots/inpainting.webp" alt="Inpainting in HEISS UI: a picture is dropped into the prompt bar as a reference, the brush opens the inpaint studio over the gallery, and a stroke is painted over the part to change" width="100%" /></a>
-</p>
-
-- **The rest stays untouched.** Only the painted part is redrawn, so the rest never softens or shifts in color.
-- **Works with your models.** 18 of the 21 image families inpaint, with no extra nodes. The model menu marks which ones.
-- **A proper brush.** Brush, eraser, hand, undo, zoom and size, on a phone too.
-- **Two dials.** **Inpaint strength** and **Edge softness** sit under the image in the sidebar (in the Advanced sheet on a phone).
-
-Not for Ideogram 4, MageFlow, Sana, video or imported workflows, and there's no outpainting or layers. Inpainting is in beta and on by default; **Settings › Features › Inpainting** turns it off.
-
-## Native 2K and sizes
-
-- **2K drawn by the model.** The size menu has **Default**, **2K** and **Custom**. 2K draws your shape with its long side at 2048 in one run, faster than an upscale and with nothing in between. Flux.2, Qwen-Image 2.1, Z-Image, Krea 2 Turbo, Ideogram 4, MageFlow and Sana 2K/4K are made for it; on other models the menu says when a model isn't known for 2K. [Which models ↗](./docs/guides/MODELS.md#native-2k)
-- **See the size before you run.** A live frame shows the shape and pixels you'll get, and hovering a shape previews it.
-- **Custom, linked or not.** Width and height move together and keep the shape, or unlink them. Type, use the arrow keys or drag the label, from 256 to 4096.
-- **Saved sizes on every device.** **Save size** keeps a size of your own, to rename or remove later. Your phone and every other device see the same list.
-- **Or count in megapixels.** **Settings › Generation › Size in megapixels** puts a Megapixels field in the menu, and every shape is drawn at that many pixels.
-
-A reference being edited or a painted mask sets the size itself, and your 2K pick comes back afterwards.
-
-## Smart upscale
-
-Bigger, sharper pictures with [SeedVR2](https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler), without leaving the studio.
-
-- **Any picture, one click.** The upscale arrow on a tile or in the viewer takes anything in the gallery to 2K or 4K, Hidden included. The upscale is saved next to the original, and a slider drags across both to show what changed.
-- **Time left, not a spinner.** The ring, the buttons and the queue count down the seconds that are left.
-- **Set up when you need it.** The first upscale without the SeedVR2 nodes or model offers to install them, with sizes shown before anything downloads. Weights kept in any folder ComfyUI reads are found.
-
-<details>
-<summary><b>Effort and faces</b></summary>
-
-**Fast**, **Balanced** (2K) and **High** (4K) trade speed for quality; High is the slowest and uses the most graphics memory. The effort is set under **Settings › Features › Smart upscale**, where it can also be turned off. The optional **face detail pass** (beta) redraws small faces and needs the Impact Pack and Impact Subpack nodes.
-
-</details>
-
-## Auto-grouping
-
-Making ten takes of one idea fills a gallery fast. With auto-grouping on, pictures from similar prompts, even ones you tweak as you go, fold into one tile once you stop working on them.
-
-- **Stacks with a count.** A stack shows as a photo with two edges under it, or as a cover flow, with the number of pictures in the corner.
-- **Skim without opening.** Slide the pointer along the bottom of a stack to flip through it. Open it to spread the pictures out, or **Unstack** to keep them apart.
-- **It follows your prompts.** Similar prompts group together, and coming back to a prompt the next day starts a new stack.
-- **Your files stay put.** Grouping changes no files. Switch it off and the gallery is as it was.
-
-Turn it on with the stack button next to gallery search, or under **Settings › Library › Auto-grouping**, where you also pick the photo or cover-flow look.
-
-
-## On your phone
-
-On a phone the studio switches to its own layout. Prompt, browse, share and upscale while your PC renders.
-
-Set up [LAN access](#connect-over-lan) first, then scan the QR code shown in **Settings › Connection** with your phone and sign in. Both devices need to be on the same trusted network.
-
-
-<details>
-<summary><b>The phone layout</b></summary>
-
-The gallery runs edge to edge, and one **Describe…** pill opens the prompt, reference images (with Edit or Reference in plain sight), workflow, size (Default, 2K, Custom and your saved sizes) and number of images, with Advanced one link away. The brush on a reference opens the inpaint studio for your finger. Long press a tile to Share, Upscale, Star, Use these settings, Hide or Delete. In the viewer, pinch to zoom and swipe or flick to the next picture. Share opens the phone's share sheet. Added to the home screen, it opens full screen. A ring around Generate shows progress while you browse.
-
-**Use the full studio** under More switches a phone to the complete layout.
-
-</details>
-
-## Connect over LAN
-
-Use a laptop, tablet, phone or another desktop on the same local network to prompt, browse the gallery and upscale. HEISS UI and ComfyUI keep running on your PC with its models and outputs; the other device needs only a browser.
-
-1. On the PC running HEISS UI, open **Settings › Connection** and turn on **Open on other devices**.
-2. In the same settings, set a **studio password** under **Signing in**.
-3. On your other device, open the **network address** shown in Connection (for example, `http://192.168.1.20:8787`) and sign in with that password. Use your PC’s listed address, not `localhost`.
-
-Laptops and desktops get the full studio and phones get the phone layout. Only enable access on a network you trust. Admin controls stay at the PC unless you allow them for signed-in devices.
-
-<details>
-<summary><b>More on setup</b></summary>
-
-Turning on **Open on other devices** restarts HEISS UI. For a single session, start it with `npm start -- --lan` instead. The first time, your system may ask whether Node.js can accept connections; allow it for private networks.
-
-</details>
-
-Signing in, admin rights, HTTPS and proxies are covered in [SECURITY.md](./docs/guides/SECURITY.md#other-devices-signing-in-admin-https-and-proxies).
-
-## Hidden
-
-Hidden is a place for the images you'd rather keep to yourself. Open it from the lock in the dock. The first time, it walks you through a password and, where the browser supports it, Touch ID or Windows Hello.
-
-
-- **Generate straight into it.** Anything made while Hidden is open renders there, with the same live previews, and stays out of the gallery.
-- **Hide from the gallery.** The eye on a tile (or in the viewer) moves an image into Hidden, or back out. Upscale, compare, remix and video all work inside it.
-- **Locked means out of sight.** A locked Hidden shows no thumbnails and no count, and its prompts stay out of Recent prompts. It locks after a while without activity (Settings › Hidden › Auto-lock), or right away with **Lock**.
-
-Images, prompts, settings and upscales in Hidden are encrypted on disk with a key that only your password or a passkey can open, and ComfyUI's own copies are removed. Hidden keeps things out of casual view; it isn't forensic-grade protection. [SECURITY.md](./docs/guides/SECURITY.md) has the details, including what passkeys need.
-
-There's no password reset. If the password and every passkey are lost, **Erase Hidden** in Settings › Hidden starts over and takes everything in Hidden with it.
-
-## Updating
-
-**Settings › About › Install update** updates a downloaded release in place, and a Git checkout too as long as it has no local changes. A downloaded release also offers new versions in a small pill at the top.
-
-Updating a checkout by hand is in [Troubleshooting](./docs/guides/TROUBLESHOOTING.md#a-git-checkout-wasnt-updated).
-
-## Configuration
-
-Copy `.env.example` to `.env` when you need different ports or paths.
-
-```bash
-COMFY_URL=http://127.0.0.1:8188
-HOST=127.0.0.1
-PORT=8787
-HEISS_DATA_DIR=./data
-COMFY_OUTPUT_DIR=
-```
-
-Everything else (the output folder, other devices, HTTPS, the Hugging Face token, proxies) is in [CONFIGURATION.md](./docs/guides/CONFIGURATION.md).
-
-A Windows shortcut that starts ComfyUI and HEISS UI together is in [WINDOWS-SHORTCUT.md](./docs/guides/WINDOWS-SHORTCUT.md).
-
-## Troubleshooting
-
-[TROUBLESHOOTING.md](./docs/guides/TROUBLESHOOTING.md) covers the common problems. A failed generation links straight to its section.
-
-- **No models showing up?** Make sure ComfyUI is running. On this computer it connects on port 8188 or 8000; anywhere else, set its address in Settings › Connection. After adding files, use **Settings › Models › Rescan**.
-- **Asking for help?** **Settings › About › Copy diagnostics** copies versions, system and GPU, without prompts or images. Paste it on the [board](https://heiss-ui.vercel.app/board/) or in the [Discord](https://discord.gg/Hf7ysvDeGa).
-
-## Feedback and community
-
-Found a bug, want a feature, or not sure how something works? Post it on the **[feedback board](https://heiss-ui.vercel.app/board/)**: it's public, needs no account, and shows what's planned, in progress and done. Rather talk it through? **[Join the Discord](https://discord.gg/Hf7ysvDeGa)**.
-
-From the app, **Idea or bug?** at the bottom of the Settings sidebar and **Report bug** on a failed generation send a post with the details filled in, and you see everything that goes with it before you send. GitHub issues work as well.
-
-## FAQ
-
-The [website FAQ](https://heiss-ui.vercel.app/#faq) answers the common questions.
-
-<details>
-<summary><b>Why "HEISS"?</b></summary>
-
-*Heiß* is German for hot. Hence the steaming cup.
-
-</details>
-
-## Development
-
-```bash
-npm install
+npm ci
 npm run dev
 ```
 
-`npm run dev` starts Vite and the local API server together, and `npm test` runs the server and script tests. Adding a model family is mostly data: [MODELS.md](./docs/guides/MODELS.md) walks through it. Contributions are welcome. See [CONTRIBUTING.md](./docs/guides/CONTRIBUTING.md), and leave generated media, model files, logs and `.env` files out of commits.
+生产构建：
 
-## Credits
+```bash
+npm run build
+npm start
+```
 
-HEISS UI started as a fork of **[J-AI Studio](https://github.com/jasperdevs/J-AI-Studio)** by **[Jasper](https://github.com/jasperdevs)**. The prompt-first idea and much of the foundation are his work. If HEISS UI is useful to you, go give the original a star too.
+或直接双击：
 
-Built on [ComfyUI](https://github.com/comfyanonymous/ComfyUI).
+```text
+快速启动 HEISS Prompt Studio.bat
+```
 
-## License
+停止：
 
-[MIT](./LICENSE). The original J-AI Studio copyright notice is kept alongside HEISS UI's, as the license asks.
+```text
+快速停止 HEISS Prompt Studio.bat
+```
 
-The downloads include an [FFmpeg](https://ffmpeg.org) build (via [ffmpeg-static](https://github.com/eugeneware/ffmpeg-static)) for video previews. It's licensed separately under the GPL, with its license and source at those links.
+默认地址：
+
+```text
+http://127.0.0.1:8787/
+```
+
+## 用 LocalDock 启动
+
+LocalDock 把本项目作为“后端服务（Node / Python）”启动。
+
+```text
+服务名称：HEISS Prompt Studio
+项目目录：<install-dir>
+运行程序：node
+启动参数：scripts/localdock-start.mjs
+工作目录：<install-dir>
+环境变量文件：.env
+健康检查路径：/api/ping
+本地端口：8787
+启动超时：300 秒
+停止超时：10 秒
+```
+
+`scripts/localdock-start.mjs` 会在启动前检查依赖和源码指纹。缺少依赖时执行 `npm ci`，源码变化或 `dist` 缺失时执行 `npm run build`，然后启动 `server/index.js`。
+
+第一次安装依赖可能需要几分钟，因此启动超时建议设为 300 秒。以后修改源码后，直接在 LocalDock 点击“重启站点”即可，不需要手动构建。
+
+## 参考图库数据
+
+参考图库通过 `HEISS_REFERENCE_GALLERY_URL` 读取 manifest 服务：
+
+```dotenv
+HEISS_REFERENCE_GALLERY_URL=http://127.0.0.1:7019
+```
+
+该服务需要提供以下分类目录和 `manifest.json`：
+
+```text
+portrait
+costume
+costume-anime
+pose-depth
+shisei
+character
+```
+
+本仓库不附带这些用户素材。
+
+## 提示词数据
+
+本地案例库通过 `HEISS_PROMPT_LIBRARY_DIR` 指定：
+
+```dotenv
+HEISS_PROMPT_LIBRARY_DIR=./prompt-library-data
+```
+
+目录结构：
+
+```text
+prompt-library-data/
+  data/
+    cases.json
+    style-library.json
+    images/
+```
+
+在线抓取缓存通过 `HEISS_PROMPT_CACHE_DIR` 指定：
+
+```dotenv
+HEISS_PROMPT_CACHE_DIR=./prompt-library-cache
+```
+
+两个目录默认被 `.gitignore` 排除。
+
+## 在线来源
+
+- YouMind
+- Image2Studio
+- PromptsRef
+
+在线抓取只访问公开页面或公开接口，不绕过登录、付费墙或反爬验证。来源站点的内容归属、服务条款和可用性由对应站点决定。PromptsRef 的站内搜索要求登录，本项目只搜索已经缓存的 PromptsRef 条目。
+
+## 测试
+
+```bash
+npm test
+npm run build
+```
+
+## 上游、致敬与许可证
+
+- 上游项目：[tristmeister/HEISS-UI](https://github.com/tristmeister/HEISS-UI)
+- 本项目基线：HEISS UI `v0.18.1`
+- 原始许可证：[MIT](./LICENSE)
+- 衍生说明：[NOTICE](./NOTICE)
+- 上游 README 归档：[docs/upstream/README.md](./docs/upstream/README.md)
+
+HEISS UI 本身基于 Jasper 的 [J-AI Studio](https://github.com/jasperdevs/J-AI-Studio)。原项目的提示词优先理念和大量基础工作来自 Jasper。这个衍生版本保留并尊重这些工作。
+
+本衍生项目不是上游官方发行版，也不代表上游作者背书。
+
+---
+
+# HEISS Prompt Studio
+
+A HEISS UI derivative centered on Chinese prompts and local reference assets.
+
+> This project is based on [tristmeister/HEISS-UI](https://github.com/tristmeister/HEISS-UI) v0.18.1 and is not an official upstream release. The HEISS UI product, model support, server capabilities, and visual design are the work of Leander de Buhr, Jasper, and upstream contributors. The original MIT license and attribution are preserved.
+
+## Why This Derivative Exists
+
+The upstream app already offers a focused local ComfyUI workflow. For frequent Chinese-language prompt work, several gaps remain:
+
+1. Most UI copy, states, errors, and tooltips are English.
+2. Reference images require repeated folder navigation.
+3. Prompts and reference assets live across websites, folders, and chat history.
+4. Applying a prompt and its reference image requires several copy, drag, and tab-switch steps.
+5. Third-party prompt sources change often and need a clear cache boundary.
+
+This version turns those steps into one flow:
+
+**Find a prompt → inspect its references → select across categories → apply → generate.**
+
+## Key Changes
+
+### Chinese UI layer
+
+- Adds `public/heiss-zh-cn.js`.
+- Covers the main UI, settings, workflows, Hidden, status messages, and common tooltips.
+- Defaults the page language to Chinese while falling back to untranslated upstream text.
+
+### Local reference gallery
+
+- Adds `public/heiss-reference-gallery.js` and `server/reference-gallery.js`.
+- Includes six reference categories.
+- Supports search, pagination, thumbnails, and cross-category multi-select.
+- Respects each model's declared reference slot count.
+- Uses local-first images with remote fallback and never bulk-copies private assets.
+
+### Local and online prompt library
+
+- Adds `public/heiss-prompt-library.js`, `server/prompt-library.js`, and `server/prompt-library-remote.js`.
+- Supports local cases, templates, and online sources.
+- Filters local cases by category, style, scene, and text.
+- Supports full prompt view, copy, apply, reference-image apply, and one-click generation.
+- Integrates YouMind, Image2Studio, and PromptsRef.
+- Caches online results incrementally and validates image hosts.
+
+### Quick start/stop
+
+- Adds Chinese Windows quick-start and quick-stop launchers.
+- Uses the system Node.js and contains no machine-specific absolute paths.
+
+### Privacy boundary
+
+The repository excludes `.env`, `data/`, prompt caches, generated media, ComfyUI outputs, logs, models, LoRAs, databases, credentials, and user-specific paths.
+
+## Architecture Note
+
+The current integration uses three frontend enhancement scripts plus three backend modules, wired through `index.html` and `server/index.js`. It is a release-layer enhancement rather than two isolated plugins. Upstream updates may require DOM selector and route checks. Moving the enhancement layer into native React components is the preferred long-term direction.
+
+## Quick Start
+
+Requirements:
+
+- Node.js 20.9+
+- A running ComfyUI at `http://127.0.0.1:8188` by default
+
+Development:
+
+```bash
+npm ci
+npm run dev
+```
+
+Production:
+
+```bash
+npm run build
+npm start
+```
+
+Windows launchers:
+
+```text
+快速启动 HEISS Prompt Studio.bat
+快速停止 HEISS Prompt Studio.bat
+```
+
+Default URL:
+
+```text
+http://127.0.0.1:8787/
+```
+
+## Start With LocalDock
+
+Add the project as a Node/Python backend service:
+
+```text
+Service name: HEISS Prompt Studio
+Project root: <install-dir>
+Runtime: node
+Args: scripts/localdock-start.mjs
+Working directory: <install-dir>
+Environment file: .env
+Health path: /api/ping
+Port: 8787
+Startup timeout: 300 seconds
+Shutdown timeout: 10 seconds
+```
+
+The launcher runs `npm ci` when dependencies are missing, rebuilds when source
+files change or `dist` is absent, then starts `server/index.js`.
+
+The first dependency installation can take several minutes, so use a 300-second
+startup timeout. After that, restarting from LocalDock is enough.
+
+## Prompt and Reference Data
+
+Reference manifests are configured with:
+
+```dotenv
+HEISS_REFERENCE_GALLERY_URL=http://127.0.0.1:7019
+```
+
+Local prompt cases are configured with:
+
+```dotenv
+HEISS_PROMPT_LIBRARY_DIR=./prompt-library-data
+```
+
+Online cache:
+
+```dotenv
+HEISS_PROMPT_CACHE_DIR=./prompt-library-cache
+```
+
+The repository does not include user assets or cache data.
+
+## Online Sources
+
+YouMind, Image2Studio, and PromptsRef are accessed through public pages or public APIs. This project does not bypass login, paywalls, or anti-bot controls. PromptsRef's native site search requires login; this project searches only cached PromptsRef items.
+
+## Testing
+
+```bash
+npm test
+npm run build
+```
+
+## Upstream, Credit, and License
+
+- Upstream: [tristmeister/HEISS-UI](https://github.com/tristmeister/HEISS-UI)
+- Baseline: HEISS UI v0.18.1
+- License: [MIT](./LICENSE)
+- Derivative notice: [NOTICE](./NOTICE)
+- Archived upstream README: [docs/upstream/README.md](./docs/upstream/README.md)
+
+HEISS UI itself is based on Jasper's [J-AI Studio](https://github.com/jasperdevs/J-AI-Studio). This derivative is not an official upstream release and does not imply upstream endorsement.

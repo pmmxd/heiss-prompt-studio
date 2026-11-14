@@ -21,6 +21,10 @@ data
 # Never publish product screenshots or design working files.
 /product-screenshots/
 /artifacts/
+/prompt-library-data/
+/prompt-library-cache/
+/.build-temp/
+/.codegraph/
 
 # PP Neue Bit is a commercial font; the app doesn't use it, keep any local copy out of the repo.
 /public/fonts/PPNeueBit*

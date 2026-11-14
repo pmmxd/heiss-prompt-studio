@@ -1,7 +1,7 @@
 {
-  "name": "HEISS UI",
-  "short_name": "HEISS",
-  "description": "A local image and video studio for ComfyUI.",
+  "name": "HEISS Prompt Studio",
+  "short_name": "HEISS Studio",
+  "description": "A local-first HEISS UI derivative with Chinese UI, reference galleries, and prompt libraries.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

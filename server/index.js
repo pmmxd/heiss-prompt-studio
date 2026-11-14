@@ -62,6 +62,9 @@ import { sendGalleryExport } from './gallery-export.js';
 import { applyLoraOps, clearLoraState, loadLoraLibrary, loadLoraStack, saveLoraLibrary, saveLoraStack } from './lora-stacks.js';
 import { inpaintInputNames, prepareInpaint } from './inpaint.js';
 import { deleteUploadedReference, listReferenceAssets, readMultipartImage, readUploadedReference, referenceAssetFromGallery, saveUploadedReference, stageReferenceAssets } from './reference-assets.js';
+import { registerReferenceGalleryRoutes } from './reference-gallery.js';
+import { registerPromptLibraryRoutes } from './prompt-library.js';
+import { registerRemotePromptLibraryRoutes } from './prompt-library-remote.js';
 import { nodePack, nodePacks } from './node-packs.js';
 import { beginComfyRestart, comfyRestartStartedAt, comfyRestarting, finishComfyRestart, lastComfyRestart, noteComfyRestart } from './comfy-restart.js';
 import { failedPacks, loadedPacks, logTextFromRaw, packLabel, restartChanges } from './restart-insights.js';
@@ -175,6 +178,9 @@ function requireSignedIn(req, res, next) {
 
 app.use(requireSignedIn);
 registerAccessRoutes(app);
+registerReferenceGalleryRoutes(app, { requireLocal });
+registerPromptLibraryRoutes(app, { requireLocal });
+registerRemotePromptLibraryRoutes(app, { requireLocal });
 
 async function runRepoCommand(command, args) {
   const npm = command === npmCommand ? npmInvocation(args) : { command, args, shell: false };

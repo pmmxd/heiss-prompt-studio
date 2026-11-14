@@ -1,0 +1,22 @@
+HEISS Prompt Studio is a derivative of HEISS UI.
+
+Upstream project:
+https://github.com/tristmeister/HEISS-UI
+
+Upstream version used as the baseline:
+v0.18.1
+
+Upstream authors and copyright holders:
+Leander de Buhr (HEISS UI)
+Jasper (J-AI Studio, the project HEISS UI is based on)
+
+Upstream license:
+MIT
+
+This derivative preserves the upstream license, copyright notices, model
+integration work, server foundation, and visual design. It adds a Chinese UI
+layer, local reference gallery integration, local and online prompt libraries,
+incremental prompt/image caching, and LocalDock-friendly launch tooling.
+
+HEISS Prompt Studio is not an official HEISS UI release and is not endorsed by
+the upstream authors unless explicitly stated by them.
